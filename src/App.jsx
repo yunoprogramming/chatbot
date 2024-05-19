@@ -6,65 +6,76 @@ class Chatbot extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: [],
-    };
+			messages: [], // Initialize state to hold chat messages
+		};
   }
 
   componentDidMount() {
-    this.setState({
-      messages: [
-        {
-          type: 'bot',
-          message: "Assalaamu Alaikum! I'm your AI Muslim Companion. How can I assist you today?"
-        },
-      ],
-    });
-  }
+		// Set initial message when component mounts
+		this.setState({
+			messages: [
+				{
+					type: 'bot',
+					message:
+						"Hey! I'm your AI companion. How may I assist you today?",
+				},
+			],
+		});
+	}
 
   handleSubmit = (event) => {
-    event.preventDefault();
-    const userMessage = event.target.elements.userInput.value;
-    this.setState({
-      messages: [...this.state.messages, { type: 'user', message: userMessage }],
-    });
-    event.target.elements.userInput.value = '';
-    this.sendMessage(userMessage);
-  };
+		event.preventDefault();
+		// Get user's message from form input
+		const userMessage = event.target.elements.userInput.value;
+		// Add user's message to state
+		this.setState({
+			messages: [
+				...this.state.messages,
+				{ type: 'user', message: userMessage },
+			],
+		});
+		// Clear input field after submitting message
+		event.target.elements.userInput.value = '';
+		// Call sendMessage function to send user's message to AI
+		this.sendMessage(userMessage);
+	};
 
   sendMessage = async (userMessage) => {
-    const openaiEndpoint = 'https://api.openai.com/v1/chat/completions';
-    const openaiApiKey = process.env.REACT_APP_OPENAI_API_KEY;
-    const model = 'gpt-3.5-turbo';
+		const openaiEndpoint = 'https://api.openai.com/v1/chat/completions';
+		const openaiApiKey = process.env.REACT_APP_OPENAI_API_KEY;
+		const model = 'gpt-3.5-turbo';
 
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${openaiApiKey}`,
-    };
+		const headers = {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${openaiApiKey}`,
+		};
 
-    const data = {
-      model: model,
-      messages: [{ role: 'user', content: userMessage }],
-    };
+		const data = {
+			model: model,
+			messages: [{ role: 'user', content: userMessage }],
+		};
 
-    axios
-      .post(openaiEndpoint, data, { headers })
+		// Send user's message to OpenAI's chat completion endpoint
+		axios
+			.post(openaiEndpoint, data, { headers })
       .then((response) => {
-        const chatResponse = response.data.choices[0].message.content;
-        this.setState({
-          messages: [
-            ...this.state.messages,
-            {
-              type: 'bot',
-              message: chatResponse,
-            },
-          ],
-        });
-        console.log(chatResponse);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
+				// Get response from OpenAI and add it to state as bot's message
+				const chatResponse = response.data.choices[0].message.content;
+				this.setState({
+					messages: [
+						...this.state.messages,
+						{
+							type: 'bot',
+							message: chatResponse,
+						},
+					],
+				});
+				console.log(chatResponse);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	};
 
   render() {
     return (
